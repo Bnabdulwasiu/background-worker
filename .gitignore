@@ -39,6 +39,3 @@ frontend/dist/
 
 # Alembic
 alembic/__pycache__/
-
-# Gemini
-.gemini/
