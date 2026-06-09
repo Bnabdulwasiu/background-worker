@@ -1,0 +1,24 @@
+# Web framework (without the [standard] extras that pull in heavy cloud deps)
+fastapi==0.115.12
+uvicorn==0.34.3
+
+# Database ORM (async mode)
+sqlalchemy[asyncio]==2.0.41
+asyncpg==0.30.0
+greenlet==3.5.1
+
+# Database migrations
+alembic==1.15.2
+
+# Data validation
+pydantic==2.11.3
+pydantic-settings==2.9.1
+
+# Structured JSON logging
+python-json-logger==3.3.0
+
+# Server-Sent Events for live updates
+sse-starlette==2.3.6
+
+# ASGI server dependencies
+httptools==0.6.4
