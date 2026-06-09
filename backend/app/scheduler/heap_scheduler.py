@@ -3,13 +3,6 @@ Heap-Based Priority Queue Scheduler.
 
 This is the PRIMARY scheduling algorithm. It decides which job runs next.
 
-HOW A HEAP WORKS (simplified):
-- Think of it as a magic bag. You throw jobs in, and when you pull one out,
-  you ALWAYS get the most important one first.
-- Internally, it's a binary tree stored as a list. The smallest item
-  is always at the top (index 0).
-- Python's heapq module gives us this for free.
-
 HOW WE ORDER JOBS:
 - Each job becomes a tuple: (effective_priority, scheduled_at, created_at, job_id)
 - Python compares tuples LEFT TO RIGHT:
@@ -24,11 +17,6 @@ STARVATION PREVENTION:
 - Example: priority 3 (low) job waiting 120 seconds → effective_priority = 3 - 2 = 1 (high!)
 - This means old low-priority jobs eventually compete with new high-priority ones
 
-TIME COMPLEXITY:
-- push (add a job):  O(log n) — heap needs to rebalance
-- pop (get next):    O(log n) — heap needs to rebalance
-- peek (look at next): O(1) — just read index 0
-- remove (cancel):   O(n) — we use lazy deletion to avoid this cost
 """
 
 import heapq
@@ -54,6 +42,7 @@ class HeapEntry:
     scheduled_timestamp: float  # Unix timestamp for comparison
     created_timestamp: float    # Unix timestamp for comparison
     job_id: UUID = field(compare=False)  # Don't use this for ordering
+    base_priority: int = field(compare=False, default=3)
     removed: bool = field(default=False, compare=False, repr=False)
 
 
@@ -119,6 +108,7 @@ class HeapScheduler:
             scheduled_timestamp=sched_ts,
             created_timestamp=created_ts,
             job_id=job_id,
+            base_priority=priority,
         )
         
         # Add to both the heap and the lookup map
@@ -198,13 +188,14 @@ class HeapScheduler:
             # We need the original priority to recalculate
             # Approximate it from the entry (original_priority ≈ round of initial effective)
             # For accuracy, we recalculate from created_timestamp
-            new_effective = entry.effective_priority - boost
+            new_effective = entry.base_priority - boost
             
             new_entry = HeapEntry(
-                effective_priority=max(0.0, entry.effective_priority),
+                effective_priority=max(0.0, new_effective),
                 scheduled_timestamp=entry.scheduled_timestamp,
                 created_timestamp=entry.created_timestamp,
                 job_id=entry.job_id,
+                base_priority=entry.base_priority
             )
             new_map[entry.job_id] = new_entry
             new_heap.append(new_entry)
