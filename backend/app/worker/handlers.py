@@ -3,7 +3,7 @@
 Each job type has its own handler. Right now we have one: send_email.
 The handler receives the job's payload and executes the actual logic.
 
-So we:
+Here:
 - Validate the payload (is there a 'to' and 'subject'?)
 - Simulate network delay (1-3 seconds)
 - Randomly fail ~20% of the time (to test retries)

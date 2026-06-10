@@ -1,52 +1,23 @@
 """
-Structured JSON logging configuration.
-
-Instead of: print("job done")
-We get:     {"timestamp": "2026-06-09T10:00:00Z", "level": "INFO", "event": "job_completed", ...}
-
-This satisfies the task requirement:
-"Structured format only. console.log('done') is not logging."
-
-Uses Python's built-in logging module with a JSON formatter.
+Standard human-readable logging configuration.
 """
 
 import logging
 import sys
-from datetime import datetime, timezone
-
-from pythonjsonlogger import json as json_logger
 
 
 def setup_logging(level: str = "INFO") -> None:
-    """Configure structured JSON logging for the entire application.
+    """Configure standard human-readable logging for the entire application.
     
     Call this once at startup (in main.py and run_worker.py).
-    After this, any code doing:
-        logger = logging.getLogger(__name__)
-        logger.info("something happened", extra={"job_id": "abc"})
-    
-    Will output:
-        {"timestamp": "...", "level": "INFO", "message": "something happened", "job_id": "abc"}
     """
-
-    class CustomJsonFormatter(json_logger.JsonFormatter):
-        """Custom formatter that adds timestamp and level to every log."""
-
-        def add_fields(self, log_record, record, message_dict):
-            super().add_fields(log_record, record, message_dict)
-            # Add ISO format timestamp
-            log_record["timestamp"] = datetime.now(timezone.utc).isoformat()
-            # Add log level
-            log_record["level"] = record.levelname
-            # Add the module/file that produced this log
-            log_record["logger"] = record.name
-
-    # Create the formatter
-    formatter = CustomJsonFormatter(
-        fmt="%(timestamp)s %(level)s %(name)s %(message)s"
+    # Standard format: 2026-06-10 14:43:16 - INFO - app.main - Message
+    formatter = logging.Formatter(
+        fmt="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
     )
 
-    # Set up the handler (where logs go - stdout in our case)
+    # Set up the handler (stdout)
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(formatter)
 
@@ -57,18 +28,11 @@ def setup_logging(level: str = "INFO") -> None:
     root_logger.handlers.clear()
     root_logger.addHandler(handler)
 
-    # Quiet down noisy libraries
-    logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+    # Configure uvicorn and sqlalchemy levels
+    logging.getLogger("uvicorn.access").setLevel(logging.INFO)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Get a logger with the given name.
-    
-    Usage:
-        from app.logging_config import get_logger
-        logger = get_logger(__name__)
-        
-        logger.info("Job created", extra={"job_id": str(job.id), "job_type": job.type})
-    """
+    """Get a logger with the given name."""
     return logging.getLogger(name)

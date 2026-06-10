@@ -1,9 +1,6 @@
 """
 Worker CLI entry point.
 
-Run this in a SEPARATE terminal from the API server:
-    python run_worker.py
-
 This starts one or more worker processes that poll the database
 for pending jobs and process them independently.
 
