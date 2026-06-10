@@ -1,0 +1,92 @@
+.dashboard__header {
+  margin-bottom: 28px;
+}
+.dashboard__header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.dashboard__subtitle {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition);
+}
+.stat-card:hover {
+  border-color: rgba(99, 102, 241, 0.25);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card__icon {
+  font-size: 1.6rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+}
+
+.stat-card--pending .stat-card__icon { background: var(--status-pending-bg); }
+.stat-card--processing .stat-card__icon { background: var(--status-processing-bg); }
+.stat-card--completed .stat-card__icon { background: var(--status-completed-bg); }
+.stat-card--failed .stat-card__icon { background: var(--status-failed-bg); }
+.stat-card--cancelled .stat-card__icon { background: var(--status-cancelled-bg); }
+.stat-card--dlq_count .stat-card__icon { background: var(--dlq-bg); }
+
+.stat-card__info {
+  display: flex;
+  flex-direction: column;
+}
+.stat-card__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-card--pending .stat-card__value { color: var(--status-pending); }
+.stat-card--processing .stat-card__value { color: var(--status-processing); }
+.stat-card--completed .stat-card__value { color: var(--status-completed); }
+.stat-card--failed .stat-card__value { color: var(--status-failed); }
+.stat-card--cancelled .stat-card__value { color: var(--status-cancelled); }
+.stat-card--dlq_count .stat-card__value { color: var(--dlq-color); }
+
+.stat-card__label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Total */
+.dashboard__total {
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.dashboard__total strong {
+  color: var(--text-primary);
+}
+
+/* Section Title */
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}

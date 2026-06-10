@@ -1,0 +1,35 @@
+.dlq-page__header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.dlq-page__header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.dlq-page__count {
+  font-size: 0.85rem;
+  color: var(--dlq-color);
+  font-weight: 600;
+}
+
+.dlq-alert {
+  padding: 12px 16px;
+  background: var(--dlq-bg);
+  color: var(--dlq-color);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: var(--radius);
+  font-size: 0.87rem;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+
+.dlq-error-cell {
+  max-width: 280px;
+}
+.dlq-error-text {
+  font-size: 0.8rem;
+  color: var(--status-failed);
+  word-break: break-word;
+}

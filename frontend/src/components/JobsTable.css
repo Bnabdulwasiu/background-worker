@@ -1,0 +1,37 @@
+.jobs-page__header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.jobs-page__header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.jobs-page__count {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.jobs-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.jobs-row {
+  cursor: pointer;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 0 4px;
+}
+.pagination__info {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}

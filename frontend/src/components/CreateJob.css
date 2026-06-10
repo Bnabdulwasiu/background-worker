@@ -1,0 +1,120 @@
+.create-page h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.create-page__subtitle {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 4px;
+  margin-bottom: 24px;
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 600px;
+}
+
+/* Type Selector */
+.type-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.type-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 0.83rem;
+  font-weight: 500;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition);
+}
+.type-btn:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+.type-btn--active {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Priority Selector */
+.priority-selector {
+  display: flex;
+  gap: 8px;
+}
+.priority-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius);
+  font-size: 0.83rem;
+  font-weight: 500;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition);
+}
+.priority-btn:hover {
+  border-color: var(--accent);
+}
+.priority-btn--active {
+  border-width: 2px;
+}
+.priority-btn--1.priority-btn--active {
+  border-color: var(--priority-high);
+  color: var(--priority-high);
+  background: var(--priority-high-bg);
+}
+.priority-btn--2.priority-btn--active {
+  border-color: var(--priority-medium);
+  color: var(--priority-medium);
+  background: var(--priority-medium-bg);
+}
+.priority-btn--3.priority-btn--active {
+  border-color: var(--priority-low);
+  color: var(--text-primary);
+  background: var(--priority-low-bg);
+}
+
+/* Payload Editor */
+.payload-editor {
+  font-family: 'Courier New', monospace;
+  font-size: 0.83rem;
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Form Row */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Messages */
+.create-msg {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.create-msg--error {
+  background: var(--status-failed-bg);
+  color: var(--status-failed);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.create-msg--success {
+  background: var(--status-completed-bg);
+  color: var(--status-completed);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.create-submit {
+  align-self: flex-start;
+  padding: 10px 28px;
+  font-size: 0.9rem;
+}

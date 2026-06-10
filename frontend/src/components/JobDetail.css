@@ -1,0 +1,122 @@
+.detail-page {
+  max-width: 960px;
+}
+
+.detail-header {
+  margin: 20px 0;
+}
+.detail-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.detail-id {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 4px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.detail-card {
+  padding: 20px;
+}
+
+.detail-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.detail-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.87rem;
+}
+.detail-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.detail-error {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: var(--status-failed-bg);
+  color: var(--status-failed);
+  border-radius: var(--radius);
+  font-size: 0.83rem;
+  word-break: break-word;
+}
+
+.detail-payload {
+  padding: 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+}
+
+/* Event Log Timeline */
+.log-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.log-entry {
+  display: flex;
+  gap: 14px;
+  padding: 12px 0;
+  border-left: 2px solid var(--border-color);
+  margin-left: 8px;
+  padding-left: 20px;
+  position: relative;
+}
+.log-entry__dot {
+  position: absolute;
+  left: -6px;
+  top: 16px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-color);
+}
+.log-entry--completed .log-entry__dot { background: var(--status-completed); }
+.log-entry--failed .log-entry__dot { background: var(--status-failed); }
+.log-entry--retry .log-entry__dot { background: var(--status-pending); }
+.log-entry--started .log-entry__dot { background: var(--status-processing); }
+.log-entry--created .log-entry__dot { background: var(--accent); }
+.log-entry--cancelled .log-entry__dot { background: var(--status-cancelled); }
+
+.log-entry__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.log-entry__time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.log-entry__message {
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.text-muted {
+  color: var(--text-muted);
+  font-size: 0.87rem;
+}
+
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

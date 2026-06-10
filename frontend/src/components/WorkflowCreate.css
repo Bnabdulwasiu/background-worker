@@ -1,0 +1,76 @@
+.workflow-page h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.workflow-page__subtitle {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 4px;
+  margin-bottom: 24px;
+}
+
+.workflow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 600px;
+}
+
+.workflow-step {
+  position: relative;
+}
+
+.workflow-step__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.workflow-step__num {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
+.workflow-step__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.workflow-arrow {
+  text-align: center;
+  font-size: 1.4rem;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
+/* Dependency Chips */
+.dep-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.dep-chip {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.dep-chip:hover {
+  border-color: var(--accent);
+}
+.dep-chip--active {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.workflow-add {
+  margin: 16px 0;
+}
