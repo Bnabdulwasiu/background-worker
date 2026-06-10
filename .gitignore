@@ -39,3 +39,6 @@ frontend/dist/
 
 # Alembic
 alembic/__pycache__/
+
+# Test scripts
+test_scheduler.py
