@@ -150,14 +150,15 @@ async def cancel_job(session: AsyncSession, job_id: uuid.UUID) -> Job | None:
             f"Only 'pending' and 'processing' jobs can be cancelled."
         )
     
+    prev_status = job.status
     job.status = JobStatus.CANCELLED
     job.updated_at = datetime.now(timezone.utc)
     
     log_entry = JobLog(
         job_id=job.id,
         event="cancelled",
-        message=f"Job cancelled (was {job.status})",
-        details={"previous_status": str(job.status)},
+        message=f"Job cancelled (was {prev_status})",
+        details={"previous_status": str(prev_status)},
     )
     session.add(log_entry)
     

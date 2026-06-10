@@ -316,6 +316,18 @@ class Worker:
         # Re-read to get fresh state
         await session.refresh(job)
         
+        # Respect graceful cancellation even on failure
+        if job.status == JobStatus.CANCELLED:
+            logger.info("Job was cancelled during processing (failed run)", extra={
+                "job_id": job_id_str,
+                "event": "job_cancelled_during_processing",
+            })
+            await self._log_event(session, job.id, "cancelled",
+                "Job was cancelled while being processed (handler failed) — result discarded",
+                {"error": error_msg})
+            await session.commit()
+            return
+            
         job.retry_count += 1
         job.error_message = error_msg
         job.updated_at = datetime.now(timezone.utc)
