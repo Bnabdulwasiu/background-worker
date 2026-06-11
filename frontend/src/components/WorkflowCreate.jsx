@@ -42,14 +42,32 @@ export default function WorkflowCreate() {
   const removeStep = (idx) => {
     if (steps.length <= 1) return;
     setSteps(prev => {
+      const deletedStep = prev[idx];
+      const deletedDeps = deletedStep ? deletedStep.depends_on_index : [];
+      
       const updated = prev.filter((_, i) => i !== idx);
-      // Fix dependency indices
-      return updated.map(s => ({
-        ...s,
-        depends_on_index: s.depends_on_index
+      
+      return updated.map((s, i) => {
+        let deps = [];
+        s.depends_on_index.forEach(d => {
+          if (d === idx) {
+            deps.push(...deletedDeps);
+          } else {
+            deps.push(d);
+          }
+        });
+        
+        // Deduplicate and shift indices
+        deps = [...new Set(deps)];
+        const shiftedDeps = deps
           .map(d => d > idx ? d - 1 : d)
-          .filter(d => d !== idx && d >= 0),
-      }));
+          .filter(d => d >= 0 && d < i);
+          
+        return {
+          ...s,
+          depends_on_index: shiftedDeps,
+        };
+      });
     });
   };
 
