@@ -44,6 +44,9 @@ else
     sudo -u postgres psql -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASS';"
 fi
 
+# Ensure user has CREATE privileges on the public schema (required for PostgreSQL 15+)
+sudo -u postgres psql -d "$DB_NAME" -c "GRANT ALL ON SCHEMA public TO $DB_USER;"
+
 # 4. Setup directories
 echo "Setting up application directories..."
 mkdir -p /var/www/scheduler
