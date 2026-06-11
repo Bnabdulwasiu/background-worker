@@ -253,6 +253,9 @@ async def retry_dlq_job(
     job.started_at = None
     job.completed_at = None
     job.next_retry_at = None
+    # Reset created_at to now so the job sorts to the top of the jobs table
+    # and the "Created" column reflects when it was requeued, not the original submission time
+    job.created_at = datetime.now(timezone.utc)
     job.updated_at = datetime.now(timezone.utc)
     
     details = {"source": "dlq_manual_retry"}
