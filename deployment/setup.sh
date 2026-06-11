@@ -21,7 +21,7 @@ fi
 
 # 2. Update and Install Dependencies
 apt-get update && apt-get upgrade -y
-apt-get install -y python3-pip python3-venv nginx postgresql postgresql-contrib git certbot python3-certbot-nginx nodejs npm
+apt-get install -y python3-pip python3-venv nginx postgresql postgresql-contrib git certbot python3-certbot-nginx nodejs npm rsync
 
 # 3. Setup PostgreSQL Database
 echo "Configuring PostgreSQL Database..."
