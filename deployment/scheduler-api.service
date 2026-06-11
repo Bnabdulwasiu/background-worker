@@ -1,0 +1,13 @@
+[Unit]
+Description=Scheduler FastAPI Server
+After=network.target postgresql.service
+
+[Service]
+User=ubuntu
+WorkingDirectory=/var/www/scheduler/backend
+EnvironmentFile=/var/www/scheduler/backend/.env
+ExecStart=/var/www/scheduler/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

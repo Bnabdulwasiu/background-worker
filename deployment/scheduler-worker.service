@@ -1,0 +1,13 @@
+[Unit]
+Description=Scheduler Background Worker
+After=network.target postgresql.service scheduler-api.service
+
+[Service]
+User=ubuntu
+WorkingDirectory=/var/www/scheduler/backend
+EnvironmentFile=/var/www/scheduler/backend/.env
+ExecStart=/var/www/scheduler/backend/venv/bin/python run_worker.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
