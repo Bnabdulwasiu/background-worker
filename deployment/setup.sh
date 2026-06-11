@@ -66,11 +66,10 @@ sudo -u $REAL_USER python3 -m venv venv
 sudo -u $REAL_USER /var/www/scheduler/backend/venv/bin/pip install --upgrade pip
 sudo -u $REAL_USER /var/www/scheduler/backend/venv/bin/pip install -r requirements.txt
 
-# Create .env
+# Create or overwrite .env to ensure it matches the database password
 ENV_FILE="/var/www/scheduler/backend/.env"
-if [ ! -f "$ENV_FILE" ]; then
-    echo "Creating .env file..."
-    cat <<EOF > "$ENV_FILE"
+echo "Creating/updating .env file..."
+cat <<EOF > "$ENV_FILE"
 DATABASE_URL=postgresql+asyncpg://$DB_USER:$DB_PASS@localhost:5432/$DB_NAME
 DLQ_THRESHOLD=10
 STARVATION_BOOST_INTERVAL=60
@@ -80,9 +79,8 @@ SSE_POLL_INTERVAL=1.0
 FAILURE_RATE=0.2
 CORS_ORIGINS=["https://$DOMAIN"]
 EOF
-    chown $REAL_USER:$REAL_GROUP "$ENV_FILE"
-    chmod 600 "$ENV_FILE"
-fi
+chown $REAL_USER:$REAL_GROUP "$ENV_FILE"
+chmod 600 "$ENV_FILE"
 
 # Run database migrations
 echo "Running alembic database migrations..."
