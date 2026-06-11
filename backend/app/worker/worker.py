@@ -40,6 +40,7 @@ from app.logging_config import get_logger
 from app.models.job import Job, JobDependency, JobLog, JobStatus
 from app.scheduler.heap_scheduler import HeapScheduler
 from app.worker.handlers import execute_handler, JobProcessingError
+from app.worker.rate_limiter import JobRateLimiter
 
 logger = get_logger(__name__)
 
@@ -57,6 +58,8 @@ class Worker:
         self.scheduler = HeapScheduler(
             starvation_boost_interval=settings.STARVATION_BOOST_INTERVAL
         )
+        # Token Bucket rate limiter — one bucket per job type
+        self.rate_limiter = JobRateLimiter(limits=settings.JOB_RATE_LIMITS)
         self._running = False
         self._jobs_processed = 0
         self._jobs_failed = 0
@@ -104,7 +107,7 @@ class Worker:
     async def _poll_and_process(self) -> bool:
         """Poll for ready jobs and process the most urgent one.
         
-        Returns True if a job was processed, False if none were found.
+        Returns True if a job was processed (or deferred), False if none were found.
         """
         async with async_session() as session:
             # Step 1: Find and lock a ready job
@@ -113,7 +116,37 @@ class Worker:
             if job is None:
                 return False
             
-            # Step 2: Process the job
+            # Step 2: Check rate limit for this job type
+            if not self.rate_limiter.consume(job.type):
+                # Rate limited — defer the job until a token is available
+                defer_seconds = self.rate_limiter.seconds_until_token(job.type)
+                defer_seconds = max(defer_seconds, 1.0)  # at least 1s
+                
+                job.next_retry_at = datetime.now(timezone.utc) + timedelta(seconds=defer_seconds)
+                job.updated_at = datetime.now(timezone.utc)
+                await session.commit()
+                
+                await self._log_event(
+                    session, job.id, "rate_limited",
+                    f"Job deferred {defer_seconds:.1f}s — rate limit reached for '{job.type}'",
+                    {
+                        "job_type": job.type,
+                        "defer_seconds": round(defer_seconds, 2),
+                        "tokens_available": self.rate_limiter.tokens_available(job.type),
+                    }
+                )
+                logger.warning(
+                    "Job rate-limited, deferring",
+                    extra={
+                        "job_id": str(job.id),
+                        "job_type": job.type,
+                        "defer_seconds": round(defer_seconds, 2),
+                        "event": "job_rate_limited",
+                    }
+                )
+                return True  # We did work (deferred a job) — don't sleep
+            
+            # Step 3: Process the job
             await self._process_job(session, job)
             return True
 

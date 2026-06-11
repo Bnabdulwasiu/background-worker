@@ -34,6 +34,16 @@ class Settings(BaseSettings):
     # Set to 0.2 = 20% failure rate for testing retries
     FAILURE_RATE: float = 0.2
 
+    # Per-job-type rate limits using the Token Bucket algorithm.
+    # Format: { "job_type": (max_jobs, window_seconds) }
+    # e.g. "send_email": (5, 60) → at most 5 emails per 60 seconds, burst of 5.
+    # Set to empty dict {} to disable all rate limiting.
+    JOB_RATE_LIMITS: dict = {
+        "send_email":      (10, 60),    # 10 per minute (e.g. SMTP provider limit)
+        "upload_file":     (5, 30),    # 5 per 30 seconds (e.g. S3 throttle)
+        "generate_report": (10, 60),   # 10 per minute (lenient — CPU-bound only)
+    }
+
     # CORS: frontend URL
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
 
