@@ -9,7 +9,6 @@ The worker runs in an infinite loop until you press Ctrl+C.
 
 import asyncio
 import signal
-import sys
 
 from app.logging_config import setup_logging, get_logger
 from app.worker.worker import Worker
