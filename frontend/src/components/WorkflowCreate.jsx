@@ -4,8 +4,21 @@ import { api } from '../api/client';
 import './WorkflowCreate.css';
 
 const JOB_TYPES = ['send_email', 'generate_report', 'upload_file'];
+const INTERVALS = [
+  { value: '', label: 'None (one-time)' },
+  { value: 'every_1_minute', label: 'Every 1 minute' },
+  { value: 'every_5_minutes', label: 'Every 5 minutes' },
+  { value: 'every_1_hour', label: 'Every 1 hour' },
+];
 
-const EMPTY_STEP = { type: 'generate_report', priority: 2, payload: '{}', depends_on_index: [] };
+const EMPTY_STEP = { 
+  type: 'generate_report', 
+  priority: 2, 
+  payload: '{}', 
+  scheduled_at: '', 
+  interval: '', 
+  depends_on_index: [] 
+};
 
 export default function WorkflowCreate() {
   const navigate = useNavigate();
@@ -61,12 +74,15 @@ export default function WorkflowCreate() {
         let payload;
         try { payload = JSON.parse(s.payload); }
         catch { throw new Error(`Invalid JSON in step payload`); }
-        return {
+        const job = {
           type: s.type,
           priority: s.priority,
           payload,
           depends_on_index: s.depends_on_index,
         };
+        if (s.scheduled_at) job.scheduled_at = new Date(s.scheduled_at).toISOString();
+        if (s.interval) job.interval = s.interval;
+        return job;
       });
 
       const result = await api.createWorkflow({ jobs: jobsData });
@@ -125,6 +141,31 @@ export default function WorkflowCreate() {
                     onChange={(e) => updateStep(idx, 'payload', e.target.value)}
                     style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}
                   />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Scheduled At (optional)</label>
+                    <input
+                      type="datetime-local"
+                      className="form-input"
+                      value={step.scheduled_at || ''}
+                      onChange={(e) => updateStep(idx, 'scheduled_at', e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Recurring Interval</label>
+                    <select
+                      className="form-select"
+                      value={step.interval || ''}
+                      onChange={(e) => updateStep(idx, 'interval', e.target.value)}
+                    >
+                      {INTERVALS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 {idx > 0 && (
