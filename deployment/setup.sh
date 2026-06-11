@@ -19,6 +19,10 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+# Detect original user who ran sudo
+REAL_USER=${SUDO_USER:-ubuntu}
+REAL_GROUP=$(id -gn "$REAL_USER" 2>/dev/null || echo "$REAL_USER")
+
 # 2. Update and Install Dependencies
 apt-get update && apt-get upgrade -y
 apt-get install -y python3-pip python3-venv nginx postgresql postgresql-contrib git certbot python3-certbot-nginx nodejs npm rsync
@@ -53,15 +57,15 @@ BASE_DIR="$(dirname "$SCRIPT_DIR")"
 rsync -av --exclude 'venv' --exclude 'node_modules' --exclude '.git' "$BASE_DIR/" /var/www/scheduler/
 
 # Adjust owner
-chown -R ubuntu:ubuntu /var/www/scheduler
+chown -R $REAL_USER:$REAL_GROUP /var/www/scheduler
 chmod -R 755 /var/www/scheduler
 
 # 5. Build Backend Environment
 echo "Setting up Python virtual environment..."
 cd /var/www/scheduler/backend
-sudo -u ubuntu python3 -m venv venv
-sudo -u ubuntu /var/www/scheduler/backend/venv/bin/pip install --upgrade pip
-sudo -u ubuntu /var/www/scheduler/backend/venv/bin/pip install -r requirements.txt
+sudo -u $REAL_USER python3 -m venv venv
+sudo -u $REAL_USER /var/www/scheduler/backend/venv/bin/pip install --upgrade pip
+sudo -u $REAL_USER /var/www/scheduler/backend/venv/bin/pip install -r requirements.txt
 
 # Create .env
 ENV_FILE="/var/www/scheduler/backend/.env"
@@ -77,24 +81,24 @@ SSE_POLL_INTERVAL=1.0
 FAILURE_RATE=0.2
 CORS_ORIGINS=["https://$DOMAIN"]
 EOF
-    chown ubuntu:ubuntu "$ENV_FILE"
+    chown $REAL_USER:$REAL_GROUP "$ENV_FILE"
     chmod 600 "$ENV_FILE"
 fi
 
 # Run database migrations
 echo "Running alembic database migrations..."
-sudo -u ubuntu /var/www/scheduler/backend/venv/bin/alembic upgrade head
+sudo -u $REAL_USER /var/www/scheduler/backend/venv/bin/alembic upgrade head
 
 # 6. Build Frontend Static Assets
 echo "Building React frontend..."
 cd /var/www/scheduler/frontend
-sudo -u ubuntu npm install
-sudo -u ubuntu npm run build
+sudo -u $REAL_USER npm install
+sudo -u $REAL_USER npm run build
 
 # 7. Configure Systemd Services
 echo "Configuring systemd services..."
-cp /var/www/scheduler/deployment/scheduler-api.service /etc/systemd/system/
-cp /var/www/scheduler/deployment/scheduler-worker.service /etc/systemd/system/
+sed "s/User=ubuntu/User=$REAL_USER/g" /var/www/scheduler/deployment/scheduler-api.service > /etc/systemd/system/scheduler-api.service
+sed "s/User=ubuntu/User=$REAL_USER/g" /var/www/scheduler/deployment/scheduler-worker.service > /etc/systemd/system/scheduler-worker.service
 systemctl daemon-reload
 systemctl enable scheduler-api scheduler-worker
 systemctl start scheduler-api scheduler-worker
