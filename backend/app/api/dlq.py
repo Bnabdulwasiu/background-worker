@@ -5,11 +5,12 @@ Defines HTTP endpoints for inspecting failed jobs in the DLQ and triggering manu
 """
 
 import uuid
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.schemas.job import JobResponse
+from app.schemas.job import JobResponse, JobRetry
 from app.services import job_service
 
 router = APIRouter(prefix="/api", tags=["DLQ"])
@@ -27,6 +28,7 @@ async def list_dlq_jobs(
 @router.post("/dlq/{job_id}/retry", response_model=JobResponse)
 async def retry_dlq_job(
     job_id: uuid.UUID,
+    retry_in: Optional[JobRetry] = None,
     db: AsyncSession = Depends(get_db),
 ):
     """Manually trigger a retry for a job currently in the DLQ.
@@ -34,7 +36,8 @@ async def retry_dlq_job(
     Resets the job's retry count and returns it to PENDING status.
     """
     try:
-        job = await job_service.retry_dlq_job(db, job_id)
+        new_payload = retry_in.payload if retry_in else None
+        job = await job_service.retry_dlq_job(db, job_id, new_payload)
         if not job:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

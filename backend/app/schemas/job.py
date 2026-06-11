@@ -83,6 +83,11 @@ class JobCreate(BaseModel):
         return v
 
 
+class JobRetry(BaseModel):
+    """Schema for retrying a job with an optional new payload."""
+    payload: dict | None = None
+
+
 class JobResponse(BaseModel):
     """Schema for job data returned by the API.
     

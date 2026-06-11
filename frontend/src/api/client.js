@@ -36,7 +36,10 @@ export const api = {
 
   // DLQ
   listDLQ: () => request('/dlq'),
-  retryDLQ: (id) => request(`/dlq/${id}/retry`, { method: 'POST' }),
+  retryDLQ: (id, payload) => request(`/dlq/${id}/retry`, { 
+    method: 'POST', 
+    body: payload ? JSON.stringify({ payload }) : undefined 
+  }),
 
   // Dashboard
   getStats: () => request('/dashboard/stats'),

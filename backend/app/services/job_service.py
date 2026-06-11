@@ -224,7 +224,9 @@ async def get_dlq_jobs(session: AsyncSession) -> list[Job]:
     return list(result.scalars().all())
 
 
-async def retry_dlq_job(session: AsyncSession, job_id: uuid.UUID) -> Job | None:
+async def retry_dlq_job(
+    session: AsyncSession, job_id: uuid.UUID, new_payload: dict | None = None
+) -> Job | None:
     """Manually retry a job from the DLQ.
     
     Resets the job to pending with retry_count=0 and removes it from DLQ.
@@ -237,6 +239,12 @@ async def retry_dlq_job(session: AsyncSession, job_id: uuid.UUID) -> Job | None:
     if not job.is_in_dlq:
         raise ValueError("Job is not in the Dead Letter Queue")
     
+    old_payload = job.payload
+    has_payload_changed = new_payload is not None and new_payload != old_payload
+    
+    if has_payload_changed:
+        job.payload = new_payload
+
     job.status = JobStatus.PENDING
     job.is_in_dlq = False
     job.retry_count = 0
@@ -247,11 +255,19 @@ async def retry_dlq_job(session: AsyncSession, job_id: uuid.UUID) -> Job | None:
     job.next_retry_at = None
     job.updated_at = datetime.now(timezone.utc)
     
+    details = {"source": "dlq_manual_retry"}
+    if has_payload_changed:
+        details["old_payload"] = old_payload
+        details["new_payload"] = new_payload
+        message = "Manual retry from DLQ — payload updated and retry count reset to 0"
+    else:
+        message = "Manual retry from DLQ — retry count reset to 0"
+
     log_entry = JobLog(
         job_id=job.id,
         event="retry",
-        message="Manual retry from DLQ — retry count reset to 0",
-        details={"source": "dlq_manual_retry"},
+        message=message,
+        details=details,
     )
     session.add(log_entry)
     
@@ -261,6 +277,7 @@ async def retry_dlq_job(session: AsyncSession, job_id: uuid.UUID) -> Job | None:
     logger.info("DLQ job manually retried", extra={
         "job_id": str(job.id),
         "event": "dlq_retry",
+        "payload_changed": has_payload_changed,
     })
     
     return job

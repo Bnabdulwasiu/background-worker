@@ -6,6 +6,9 @@ export default function DLQView() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [retrying, setRetrying] = useState(null);
+  const [editingJob, setEditingJob] = useState(null);
+  const [payloadText, setPayloadText] = useState('');
+  const [jsonError, setJsonError] = useState(null);
 
   const fetchDLQ = async () => {
     try {
@@ -32,11 +35,44 @@ export default function DLQView() {
     }
   };
 
+  const openEditModal = (job) => {
+    setEditingJob(job);
+    setPayloadText(JSON.stringify(job.payload, null, 2));
+    setJsonError(null);
+  };
+
+  const closeEditModal = () => {
+    setEditingJob(null);
+    setPayloadText('');
+    setJsonError(null);
+  };
+
+  const handleEditAndRetry = async (e) => {
+    e.preventDefault();
+    try {
+      const parsedPayload = JSON.parse(payloadText);
+      if (typeof parsedPayload !== 'object' || parsedPayload === null || Array.isArray(parsedPayload)) {
+        throw new Error('Payload must be a JSON object');
+      }
+      setJsonError(null);
+      const jobId = editingJob.id;
+      setRetrying(jobId);
+      setEditingJob(null);
+      await api.retryDLQ(jobId, parsedPayload);
+      fetchDLQ();
+    } catch (err) {
+      setJsonError(err.message);
+    } finally {
+      setRetrying(null);
+    }
+  };
+
   if (loading) {
     return <div className="empty-state pulse">Loading DLQ...</div>;
   }
 
   return (
+    <>
     <div className="dlq-page fade-in">
       <div className="dlq-page__header">
         <h1>Dead Letter Queue</h1>
@@ -90,13 +126,22 @@ export default function DLQView() {
                     </td>
                     <td>{new Date(job.updated_at).toLocaleString()}</td>
                     <td>
-                      <button
-                        className="btn btn--primary btn--small"
-                        disabled={retrying === job.id}
-                        onClick={() => handleRetry(job.id)}
-                      >
-                        {retrying === job.id ? 'Retrying...' : '🔄 Retry'}
-                      </button>
+                      <div className="dlq-actions">
+                        <button
+                          className="btn btn--primary btn--small"
+                          disabled={retrying === job.id}
+                          onClick={() => handleRetry(job.id)}
+                        >
+                          {retrying === job.id ? 'Retrying...' : '🔄 Retry'}
+                        </button>
+                        <button
+                          className="btn btn--secondary btn--small"
+                          disabled={retrying === job.id}
+                          onClick={() => openEditModal(job)}
+                        >
+                          ✏️ Edit & Retry
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -106,5 +151,52 @@ export default function DLQView() {
         </div>
       )}
     </div>
+
+    {editingJob && (
+      <div className="modal-overlay" onClick={closeEditModal}>
+        <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h2>Edit Payload & Retry</h2>
+            <button className="modal-close-btn" onClick={closeEditModal}>&times;</button>
+          </div>
+          <p className="modal-subtitle">
+            Job ID: <code>{editingJob.id}</code> ({editingJob.type})
+          </p>
+          <form onSubmit={handleEditAndRetry}>
+            <div className="form-group" style={{ marginBottom: 16 }}>
+              <label htmlFor="payload-editor">Job Payload (JSON)</label>
+              <textarea
+                id="payload-editor"
+                className="form-input dlq-payload-textarea"
+                value={payloadText}
+                onChange={(e) => setPayloadText(e.target.value)}
+                rows={8}
+              />
+              {jsonError && (
+                <span className="dlq-error-text" style={{ marginTop: 8 }}>
+                  ⚠️ {jsonError}
+                </span>
+              )}
+            </div>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn btn--secondary"
+                onClick={closeEditModal}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn--primary"
+              >
+                Confirm & Retry
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
