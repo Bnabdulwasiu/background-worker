@@ -40,9 +40,8 @@ if ! sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -qw "$DB_NAME"; then
     sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
     echo "Database and User created successfully."
 else
-    echo "Database $DB_NAME already exists, skipping database creation."
-    # We will try to fetch the existing DB credentials or ask them to manually configure
-    echo "Using existing database configuration."
+    echo "Database $DB_NAME already exists. Syncing password for user '$DB_USER'..."
+    sudo -u postgres psql -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASS';"
 fi
 
 # 4. Setup directories
