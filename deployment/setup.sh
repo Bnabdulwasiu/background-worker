@@ -87,7 +87,7 @@ fi
 
 # Run database migrations
 echo "Running alembic database migrations..."
-sudo -u $REAL_USER /var/www/scheduler/backend/venv/bin/alembic upgrade head
+sudo -u $REAL_USER env PYTHONPATH=. /var/www/scheduler/backend/venv/bin/alembic upgrade head
 
 # 6. Build Frontend Static Assets
 echo "Building React frontend..."
